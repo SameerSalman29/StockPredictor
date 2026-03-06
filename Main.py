@@ -22,3 +22,9 @@ df = df.dropna()
 
 df["MA_5"] = df["Adj Close"].rolling(5).mean()
 df("MA_20") = df["Adj Close"].rolling(20).mean()
+
+#adding momentum and volatility
+df["Momentum_5"] = df["Adj Close"] - df["Adj Close"].shift(5)
+df["Volatility_5"] = df["Return"].rolling(5).std()
+df["Volume_Change"] = df["Volume"].pct_change()
+
