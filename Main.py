@@ -58,4 +58,10 @@ print("Recall:", recall_score(y_test, predictions))
 print("F1 Score:", f1_score(y_test, predictions))
 print("Confusion MAtrix:\n", confusion_matrix(y_test, predictions))
 
- 
+#backtesting logic
+test = test.copy()
+test["Position"] = predictions
+test["Position"] = test["Position"].shift(1)
+test["Strategy_Return"] = test["Position"] * test["Return"]
+test["Cumulative_Strategy"] = (1 + test["Strategy_Return"]).cumprod()
+test["Cumulative_BuyHold"] = (1 + test["Return"]).cumprod()
