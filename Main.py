@@ -16,39 +16,40 @@ df = download_data()
 print(df.head())
 
 #calculate returns
-df['Return'] = df['Adj Close'].pct_change()
+df['Return'] = df['Close'].pct_change()
 df = df.dropna()
 
 #create target
 df['Target'] = (df['Return'].shift(-1) > 0).astype(int)
 df = df.dropna()
 
-df["MA_5"] = df["Adj Close"].rolling(5).mean()
-df["MA_20"] = df["Adj Close"].rolling(20).mean()
+df["MA_5"] = df["Close"].rolling(5).mean()
+df["MA_20"] = df["Close"].rolling(20).mean()
 
 #adding momentum and volatility
-df["Momentum_5"] = df["Adj Close"] - df["Adj Close"].shift(5)
+df["Momentum_5"] = df["Close"] - df["Close"].shift(5)
 df["Volatility_5"] = df["Return"].rolling(5).std()
 df["Volume_Change"] = df["Volume"].pct_change()
-
+# Drop rows with NaNs after feature engineering
+df = df.dropna()
 #train/test split
 split_in = int(len(df)*0.8)
-train = df.iloc[split_in]
+train = df.iloc[:split_in]
 test = df.iloc[split_in:]
 
 #baseline logistic regression
 features = ["MA_5", "MA_20", "Momentum_5", "Volatility_5", "Volume_Change"]
 X_train = train[features]
 y_train = train["Target"]
-
-X_train_scaled = StandardScaler.fit_transform(X_train)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
 model = LogisticRegression(max_iter=2000)
 model.fit(X_train_scaled, y_train)
 
 #evaluate logistic regression
 X_test = test[features]
 y_test = test["Target"]
-X_test_scaled = StandardScaler.fit_transform(X_test)
+X_test_scaled = scaler.transform(X_test)
 
 predictions = model.predict(X_test_scaled)
 
@@ -67,9 +68,9 @@ test["Cumulative_Strategy"] = (1 + test["Strategy_Return"]).cumprod()
 test["Cumulative_BuyHold"] = (1 + test["Return"]).cumprod()
 
 #Computing Sharpe & Max Drawdown
-returns = test["Strategy_Retun"].dropna()
+returns = test["Strategy_Return"].dropna()
 sharpe = (returns.mean() / returns.std()) * np.sqrt(252)
-cummulative = test["Cummulative_Strategy"]
+cummulative = test["Cumulative_Strategy"]
 peak = cummulative.cummax()
 drawdown = (cummulative - peak) / peak
 max_drawdown = drawdown.min()
@@ -78,8 +79,8 @@ print("Max Drawdown:", max_drawdown)
 
 #plot equity curve
 plt.figure(figsize=(12, 8))
-plt.plot(test["Cummulative_Strategy"], label="Strategy")
-plt.plot(test["Cummulative_BuyHold"], label="Buy & Hold")
+plt.plot(test["Cumulative_Strategy"], label="Strategy")
+plt.plot(test["Cumulative_BuyHold"], label="Buy & Hold")
 plt.title("Equity_curve")
 plt.legend()
 plt.show()
