@@ -78,7 +78,7 @@ print("Sharpe Ratio:", sharpe)
 print("Max Drawdown:", max_drawdown)
 
 #plot equity curve
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(14, 8), dpi=120)
 plt.plot(test["Cumulative_Strategy"], label="Strategy")
 plt.plot(test["Cumulative_BuyHold"], label="Buy & Hold")
 plt.title("Equity_curve")
