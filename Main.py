@@ -24,7 +24,7 @@ df['Target'] = (df['Return'].shift(-1) > 0).astype(int)
 df = df.dropna()
 
 df["MA_5"] = df["Adj Close"].rolling(5).mean()
-df("MA_20") = df["Adj Close"].rolling(20).mean()
+df["MA_20"] = df["Adj Close"].rolling(20).mean()
 
 #adding momentum and volatility
 df["Momentum_5"] = df["Adj Close"] - df["Adj Close"].shift(5)
@@ -76,4 +76,11 @@ max_drawdown = drawdown.min()
 print("Sharpe Ratio:", sharpe)
 print("Max Drawdown:", max_drawdown)
 
+#plot equity curve
+plt.figure(figsize=(12, 8))
+plt.plot(test["Cummulative_Strategy"], label="Strategy")
+plt.plot(test["Cummulative_BuyHold"], label="Buy & Hold")
+plt.title("Equity_curve")
+plt.legend()
+plt.show()
 
