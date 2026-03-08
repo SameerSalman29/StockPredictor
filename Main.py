@@ -65,3 +65,15 @@ test["Position"] = test["Position"].shift(1)
 test["Strategy_Return"] = test["Position"] * test["Return"]
 test["Cumulative_Strategy"] = (1 + test["Strategy_Return"]).cumprod()
 test["Cumulative_BuyHold"] = (1 + test["Return"]).cumprod()
+
+#Computing Sharpe & Max Drawdown
+returns = test["Strategy_Retun"].dropna()
+sharpe = (returns.mean() / returns.std()) * np.sqrt(252)
+cummulative = test["Cummulative_Strategy"]
+peak = cummulative.cummax()
+drawdown = (cummulative - peak) / peak
+max_drawdown = drawdown.min()
+print("Sharpe Ratio:", sharpe)
+print("Max Drawdown:", max_drawdown)
+
+
